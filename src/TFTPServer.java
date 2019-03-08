@@ -19,7 +19,7 @@ public class TFTPServer {
     private boolean receiver = true;
     private DatagramPacket fragmentOfData;
 
-    //x
+   
     public static void main(String[] args) {
         if (args.length > 0) {
             System.err.printf("usage: java %s\n", TFTPServer.class.getCanonicalName());
@@ -33,7 +33,7 @@ public class TFTPServer {
         }
     }
 
-    //x
+   
     private void start() throws SocketException {
         byte[] buf = new byte[BUFFER_SIZE];
         DatagramSocket socket = new DatagramSocket(null);
@@ -71,7 +71,7 @@ public class TFTPServer {
         }
     }
 
-    //x
+    
     private InetSocketAddress receiveFrom(DatagramSocket socket, byte[] buf) {
         DatagramPacket receivedPack = new DatagramPacket(buf, buf.length);
         try {
@@ -82,7 +82,7 @@ public class TFTPServer {
         return new InetSocketAddress(receivedPack.getAddress(), receivedPack.getPort());
     }
 
-    //x
+   
     private int ParseRQ(byte[] buf, StringBuffer requestedFile) {
         try {
             int nameLength = 1;
@@ -113,7 +113,7 @@ public class TFTPServer {
         }
     }
 
-    //x
+  
     private void HandleRQ(DatagramSocket sendSocket, String dataRQ, int opcode) throws IOException {
         if (opcode == OP_RRQ) {
             try {
@@ -134,7 +134,7 @@ public class TFTPServer {
         }
     }
 
-    //x
+   
     private boolean databaseTier(DatagramPacket fragmentOfData) {
         File repo = new File(WRITE_DIR);
         long StorageFull = 0;
@@ -148,7 +148,7 @@ public class TFTPServer {
         return false;
     }
 
-    //x
+   
     private void writeRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
         File createFile = new File(dataRQ);
         if (createFile.exists() && !createFile.isDirectory()) {
@@ -187,7 +187,7 @@ public class TFTPServer {
         }
     }
 
-    //x
+   
     private void readRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
         File storage = new File(dataRQ);
         if (!storage.getParentFile().getName().equals("read")) { // Avoid request attempts to change directory with path
@@ -219,7 +219,7 @@ public class TFTPServer {
                     }
                     transmit++;
                     LEFT_EDGE--;
-                    continue;
+                   
                 }
             } else {
                 byte[] win = Arrays.copyOfRange(buffer, LEFT_EDGE * MTU, (LEFT_EDGE + 1) * MTU);
@@ -230,7 +230,7 @@ public class TFTPServer {
                     }
                     transmit++;
                     LEFT_EDGE--;
-                    continue;
+                   
                 }
             }
             transmit = 0; // restart counter if transmission successful
@@ -238,11 +238,7 @@ public class TFTPServer {
         }
         dataStream.close(); // Successful operation, cleanUp
     }
-
-    //  x          DATA_ packet
-    // |  2bytes  |	2bytes  |  n bytes |
-    // |----------|---------|----------|
-    // |  OpCode  |  Block# |   Data   |
+   
     private boolean send_DATA_receive_ACK(DatagramSocket sendSocket, int i, byte[] body) throws IOException {
         try {
             /** Send DATA to Client **/
@@ -275,11 +271,7 @@ public class TFTPServer {
             return false;
         }
     }
-
-    //  x     ACK_ packet
-    // | 2bytes   |	2bytes  |
-    // |----------|---------|
-    // |  OpCode  |  Block# |
+    
     private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, File createFile, int i) throws IOException {
         try {
             /** ------ receive_DATA ----- **/
@@ -338,10 +330,7 @@ public class TFTPServer {
         }
     }
 
-    //  x        ERR_ packet
-    // |2 bytes|  2 bytes   |   n bytes  |  1 byte |
-    // |-------|------------|------------|---------|
-    // |   06  |  ErrorCode |   ErrMsg   |     0   |
+  
     private void TransmitERROR(DatagramSocket sendSocket, int nr, String alert) {
         byte[] buf = alert.getBytes();
         ByteBuffer ERRpacket = ByteBuffer.allocate(alert.getBytes().length + 4);
