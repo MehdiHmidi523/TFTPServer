@@ -19,7 +19,6 @@ public class TFTPServer {
     private boolean receiver = true;
     private DatagramPacket fragmentOfData;
 
-   
     public static void main(String[] args) {
         if (args.length > 0) {
             System.err.printf("usage: java %s\n", TFTPServer.class.getCanonicalName());
@@ -33,7 +32,6 @@ public class TFTPServer {
         }
     }
 
-   
     private void start() throws SocketException {
         byte[] buf = new byte[BUFFER_SIZE];
         DatagramSocket socket = new DatagramSocket(null);
@@ -71,7 +69,6 @@ public class TFTPServer {
         }
     }
 
-    
     private InetSocketAddress receiveFrom(DatagramSocket socket, byte[] buf) {
         DatagramPacket receivedPack = new DatagramPacket(buf, buf.length);
         try {
@@ -82,7 +79,6 @@ public class TFTPServer {
         return new InetSocketAddress(receivedPack.getAddress(), receivedPack.getPort());
     }
 
-   
     private int ParseRQ(byte[] buf, StringBuffer requestedFile) {
         try {
             int nameLength = 1;
@@ -113,7 +109,6 @@ public class TFTPServer {
         }
     }
 
-  
     private void HandleRQ(DatagramSocket sendSocket, String dataRQ, int opcode) throws IOException {
         if (opcode == OP_RRQ) {
             try {
@@ -121,7 +116,7 @@ public class TFTPServer {
             } catch (FileNotFoundException e) {
                 TransmitERROR(sendSocket, 1, "File not found");
             } catch (IOException ex) {
-                TransmitERROR(sendSocket, 0, "File could not be read");
+                TransmitERROR(sendSocket, 0, "File could not be repo.read");
             }
         } else if (opcode == OP_WRQ) {
             try {
@@ -134,7 +129,6 @@ public class TFTPServer {
         }
     }
 
-   
     private boolean databaseTier(DatagramPacket fragmentOfData) {
         File repo = new File(WRITE_DIR);
         long StorageFull = 0;
@@ -148,7 +142,6 @@ public class TFTPServer {
         return false;
     }
 
-   
     private void writeRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
         File createFile = new File(dataRQ);
         if (createFile.exists() && !createFile.isDirectory()) {
@@ -170,9 +163,10 @@ public class TFTPServer {
                     TransmitERROR(sendSocket, 0, "------ 5 Unsuccessful re-transmissions! TransmitERROR ------");
                     break;
                 }
-                i--;
                 transmit++;
+                continue;
             }
+
             i++;
             transmit = 0;
             stream.write(fragmentOfData.getData(), 4, fragmentOfData.getLength() - 4);
@@ -186,15 +180,15 @@ public class TFTPServer {
             }
         }
     }
-
    
     private void readRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
         File storage = new File(dataRQ);
+        System.out.println(storage.getParentFile().getName());
         if (!storage.getParentFile().getName().equals("read")) { // Avoid request attempts to change directory with path
             TransmitERROR(sendSocket, 2, "Access violation");
             return;
         }
-        // If file doesn't exist in the read dir then throw FileNotFoundException
+        // If file doesn't exist in the repo.read dir then throw FileNotFoundException
         FileInputStream dataStream = new FileInputStream(storage);
 
         //Interested in the side effect
@@ -218,9 +212,9 @@ public class TFTPServer {
                         break;
                     }
                     transmit++;
-                    LEFT_EDGE--;
-                   
+                    continue;
                 }
+
             } else {
                 byte[] win = Arrays.copyOfRange(buffer, LEFT_EDGE * MTU, (LEFT_EDGE + 1) * MTU);
                 if (!send_DATA_receive_ACK(sendSocket, LEFT_EDGE + 1, win)) {
@@ -229,8 +223,7 @@ public class TFTPServer {
                         break;
                     }
                     transmit++;
-                    LEFT_EDGE--;
-                   
+                    continue;
                 }
             }
             transmit = 0; // restart counter if transmission successful
@@ -330,7 +323,6 @@ public class TFTPServer {
         }
     }
 
-  
     private void TransmitERROR(DatagramSocket sendSocket, int nr, String alert) {
         byte[] buf = alert.getBytes();
         ByteBuffer ERRpacket = ByteBuffer.allocate(alert.getBytes().length + 4);
