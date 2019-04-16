@@ -179,6 +179,7 @@ public class TFTPServer {
                     TransmitERROR(sendSocket, 3, "Allocation exceeds Server Storage.");
             }
              receiver = true;
+             stream.close;
         }
     }
    
