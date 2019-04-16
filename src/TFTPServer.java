@@ -178,6 +178,7 @@ public class TFTPServer {
                 if(databaseTier(fragmentOfData))
                     TransmitERROR(sendSocket, 3, "Allocation exceeds Server Storage.");
             }
+             receiver = true;
         }
     }
    
