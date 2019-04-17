@@ -178,9 +178,10 @@ public class TFTPServer {
                 if(databaseTier(fragmentOfData))
                     TransmitERROR(sendSocket, 3, "Allocation exceeds Server Storage.");
             }
-             receiver = true;
-             stream.close;
+             
         }
+        receiver = true;
+        stream.close;
     }
    
     private void readRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
