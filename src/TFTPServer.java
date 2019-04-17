@@ -16,7 +16,6 @@ public class TFTPServer {
     public static final int OP_ERR = 5;
     public static final int MTU = 512;
     public static final int ACCEPT_TIMEOUT_MILLIS = 200;
-    private boolean receiver = true;
     private DatagramPacket fragmentOfData;
 
     public static void main(String[] args) {
@@ -144,6 +143,11 @@ public class TFTPServer {
 
     private void writeRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
         File createFile = new File(dataRQ);
+        System.out.println(createFile.getParentFile().getName());
+        if (!createFile.getParentFile().getName().equals("write")) { // Avoid request attempts to change directory with path
+            TransmitERROR(sendSocket, 2, "Access violation");
+            return;
+        }
         if (createFile.exists() && !createFile.isDirectory()) {
             TransmitERROR(sendSocket, 6, "File already exists");
             return;
@@ -154,6 +158,7 @@ public class TFTPServer {
         ACKpacket.putShort((short) OP_ACK);
         ACKpacket.putShort((short) 0);// Initiate correspondance
         sendSocket.send(new DatagramPacket(ACKpacket.array(), ACKpacket.position()));
+        boolean receiver = true;
         FileOutputStream stream = new FileOutputStream(createFile);
         int transmit = 0;
         int i = 0; // Packet ID
@@ -166,7 +171,6 @@ public class TFTPServer {
                 transmit++;
                 continue;
             }
-
             i++;
             transmit = 0;
             stream.write(fragmentOfData.getData(), 4, fragmentOfData.getLength() - 4);
@@ -178,10 +182,7 @@ public class TFTPServer {
                 if(databaseTier(fragmentOfData))
                     TransmitERROR(sendSocket, 3, "Allocation exceeds Server Storage.");
             }
-             
         }
-        receiver = true;
-        stream.close;
     }
    
     private void readRequest(DatagramSocket sendSocket, String dataRQ) throws FileNotFoundException, IOException {
